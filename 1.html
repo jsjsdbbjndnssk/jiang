@@ -1,52 +1,114 @@
 <!DOCTYPE html>
-<html>
-  <head>
-	<meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-	<title>WebCat</title>
-	<script src="jquery.min2.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <script src="wc-3.0.6.min.js"></script>
-  </head>
-  <body>		
-    <div id="main"></div>
-    <div id="footer">
-      <input id="sendText" type="text" placeholder="请输入内容"/>
-      <input id="sendButton" type="button" value="发送"/>
-    </div>
-    <script>
-     
-      $("#sendButton").click(function(){
-        var str = $("#sendText").val();
-        if(str == ""){
-          return;
-        }
-        addMessage(0, str);
-        $("#sendText").val("");
-        $.ajax({
-          url: "http://api.qingyunke.com/api.php?key=free&appid=0&msg=" + str,
-          async: true,
-          type: "get",
-          dataType: "json",
-          success: function(result){
-            addMessage(1, result.content);
-          },
-          error: function(err){
-            //alert(JSON.stringify(err));
-          }
-        });
-      });  
-    
-      function addMessage(type, message){
-        var reg = new RegExp("{br}","g");
-        var message = message.replace(reg, "</br>");
-        if(type == 1){
-          $("#main").append("<div class='item'><div class='item-left'>" + message + "</div></div>");
-        } else{
-          $("#main").append("<div class='item'><div class='item-right'>" + message + "</div></div>");
-        }
-        $('#main').scrollTop($('#main')[0].scrollHeight);
-      }   
-      $("#main").css("max-height", $(window).height()-50);     
-    </script> 
-  </body>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>时钟罗盘</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<style>
+		*{
+			margin: 0;
+			padding: 0;
+		}
+		body{
+			font-size: 14px;
+			background: black;
+			color: gainsboro;
+		}
+		.center{
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%,-50%);
+			width: 18px;
+			height: 18px;
+		}
+		.center > div{
+			transform-origin: left center;
+			/* display: none; */
+			position: absolute;
+			height: 18px;
+			transition: 0.5s transform;
+			text-shadow: 0 0 20px orange;
+		}
+		p{	
+			position: absolute;
+			transform-origin: left center;
+			width: 50px;
+			text-align: center;
+			transition: 0.5s color;
+		}
+		.ck{
+			color: yellow;
+		}
+		
+		
+		.m{
+			color: rgba(255, 0, 0, .8);
+		}
+		.d{
+			color: rgba(255, 0, 0, 1);
+		}
+		.h{
+			color: rgba(255, 0, 0, .8);
+		}
+		.mm{
+			color: rgba(255, 0, 0, .8);
+		}
+		.center .s{
+			color: rgba(255, 0, 0, .8);
+		}
+	</style>
+</head>
+<body>
+	<div class="center">
+		<div class="m"></div>
+		<div class="d"></div>
+		<div class="h"></div>
+		<div class="mm"></div>
+		<div class="s"></div>
+	</div>
+	<script>
+		let is = 0
+		let m = document.querySelector('.m')
+		let d = document.querySelector('.d')
+		let h = document.querySelector('.h')
+		let mm = document.querySelector('.mm')
+		let s = document.querySelector('.s')
+		addText(m,12,30,'月')
+		addText(d,31,65,'日')
+		addText(h,24,100,'时')
+		addText(mm,60,135,'分',true)
+		addText(s,60,170,'秒')
+
+		function addText(dom,max,trans,txt,ck){
+			for(let i = 0; i < max; i++){
+				let pm = document.createElement('p')
+				pm.innerHTML = (ck ? i : i+1)+txt
+				pm.style.transform = `rotate(${i*(360/max)}deg) translateX(${trans}px)`
+				dom.appendChild(pm)
+			}
+		}
+		
+		setInterval(()=>{
+			    let date = new Date()
+				setTime(m,date.getMonth(),12)
+				setTime(d,date.getDate(),31)
+				setTime(h,date.getHours(),24)
+				setTime(mm,date.getMinutes()+1,60)
+				setTime(s,date.getSeconds(),60)
+				
+		},1000)
+		
+		function setTime(dom,timer,max){
+			let p = dom.querySelectorAll('p')
+			dom.style.transform = 'rotate('+(dom==m ? timer : timer -1)*(-360/max)+'deg)'
+			p.forEach(v=>{
+				v.classList.remove('ck')
+			})
+			p[dom==m ? timer : timer-1].classList.add('ck')
+		}
+		
+		
+	</script>
+</body>
 </html>
